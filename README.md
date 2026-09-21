@@ -1,13 +1,8 @@
 <div align="center">
 
-```
-██████╗  █████╗ ████████╗ ██████╗  ██████╗ ████████╗
-██╔══██╗ ██╔══██╗ ██╔══██╗ ██╔══██╗ ██╔════╝ ██╔════╝
-██████╔╝ ████████║ ██║  ██║ ███████╔╝ ██║ ██║
-██╔═══╝ ██╔══██║ ██║  ██║ ██╔══██╗ ██║ ██║
-██║ ██║  ██║ ███████╔╝ ██║  ██║ ╚██████╗ ██║
-╚═╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝  ╚═════╝ ██║
-```
+![Matrix Rain](assets/matrix_rain.gif)
+
+![SKOR17 Glitch](assets/glitch.gif)
 
 **`[ SYSTEM INITIALIZED ] :: ACCESS GRANTED`**
 
@@ -16,6 +11,10 @@
 </div>
 
 ---
+
+## ▸ $ ./boot_sequence
+
+![Boot Sequence](assets/boot_sequence.gif)
 
 ## ▸ $ cat profile.json
 
@@ -76,14 +75,20 @@ $ ls -la ~/stack
 
 ---
 
+## ▸ $ ./system_monitor
+
+![System Monitor](assets/system_monitor.gif)
+
+---
+
 ## ▸ $ nav --menu
 
 ```bash
 $ nav --menu
 ┌─[ SOCIALS ]──────────────────────────────────────┐
-│  [1] website   →  https://skor17.dev            │
-│  [2] linkedin  →  https://linkedin.com/in/skor17│
-│  [3] contact   →  skor17@proton.me              │
+│  [1] website   →  https://skor17.dev             │
+│  [2] linkedin  →  https://linkedin.com/in/skor17 │
+│  [3] contact   →  skor17@proton.me               │
 └──────────────────────────────────────────────────┘
 ```
 
