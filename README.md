@@ -1,146 +1,101 @@
 <div align="center">
 
-MARCOS SKORUPSKY
+```
+██████╗  █████╗ ████████╗ ██████╗  ██████╗ ████████╗
+██╔══██╗ ██╔══██╗ ██╔══██╗ ██╔══██╗ ██╔════╝ ██╔════╝
+██████╔╝ ████████║ ██║  ██║ ███████╔╝ ██║ ██║
+██╔═══╝ ██╔══██║ ██║  ██║ ██╔══██╗ ██║ ██║
+██║ ██║  ██║ ███████╔╝ ██║  ██║ ╚██████╗ ██║
+╚═╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝  ╚═════╝ ██║
+```
 
-Skor17 · Developer · Builder · Problem solver
+**`[ SYSTEM INITIALIZED ] :: ACCESS GRANTED`**
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+`> Marcos Skorupsky // Zurich, CH // System Architect`
 
 </div>
 
+---
 
+## ▸ $ cat profile.json
 
+```bash
+$ cat ~/profile.json
+```
 
-About
+```json
+{
+  "handle": "Skor17",
+  "name": "Marcos Skorupsky",
+  "location": "Zurich, Switzerland",
+  "role": "System Architect / Automation Engineer",
+  "focus": [
+    "System Architecture",
+    "Automation Scripts",
+    "Web Tools",
+    "Custom Utilities"
+  ],
+  "languages": {
+    "Spanish": "Native",
+    "English": "C1",
+    "German": "Learning"
+  },
+  "status": "ONLINE",
+  "uptime": "99.9%"
+}
+```
 
-I’m Marcos, a developer interested in building useful software across the web, data, automation, and the systems behind them.
+---
 
-I like working from the problem outward: understand what needs to happen, remove unnecessary complexity, and build something that is reliable enough to be used in the real world. My projects range from focused tools and internal workflows to experiments with new technologies and ideas.
+## ▸ $ ls ./stack
 
-I’m especially interested in:
+```bash
+$ ls -la ~/stack
+```
 
-•
-web applications and developer tools
+![Python](https://img.shields.io/badge/Python-scripting?labelColor=0d1117&color=0d1117&logo=python&logoColor=05FF62&style=flat-square)
+![JavaScript](https://img.shields.io/badge/JavaScript-scripting?labelColor=0d1117&color=0d1117&logo=javascript&logoColor=05FF62&style=flat-square)
+![HTML5](https://img.shields.io/badge/HTML5-markup?labelColor=0d1117&color=0d1117&logo=html5&logoColor=05FF62&style=flat-square)
+![CSS3](https://img.shields.io/badge/CSS3-styling?labelColor=0d1117&color=0d1117&logo=css3&logoColor=05FF62&style=flat-square)
+![Streamlit](https://img.shields.io/badge/Streamlit-web-ui?labelColor=0d1117&color=0d1117&logo=streamlit&logoColor=05FF62&style=flat-square)
+![Docker](https://img.shields.io/badge/Docker-containers?labelColor=0d1117&color=0d1117&logo=docker&logoColor=05FF62&style=flat-square)
+![Git](https://img.shields.io/badge/Git-version-control?labelColor=0d1117&color=0d1117&logo=git&logoColor=05FF62&style=flat-square)
+![VS Code](https://img.shields.io/badge/VS%20Code-editor?labelColor=0d1117&color=0d1117&logo=visualstudiocode&logoColor=05FF62&style=flat-square)
+![Netlify](https://img.shields.io/badge/Netlify-deploy?labelColor=0d1117&color=0d1117&logo=netlify&logoColor=05FF62&style=flat-square)
+![Vercel](https://img.shields.io/badge/Vercel-deploy?labelColor=0d1117&color=0d1117&logo=vercel&logoColor=05FF62&style=flat-square)
 
-•
-software design and practical automation
+---
 
-•
-data, integrations, and systems thinking
+## ▸ $ ./stats.sh
 
-•
-learning by building and improving things iteratively
+<p align="center">
+  <img src="https://github-readme-stats.vercel.app/api?username=Skor17&theme=matrix&show_icons=true&hide_border=true&count_private=true&include_all_commits=true" alt="GitHub Stats" />
+  <img src="https://streak-stats.demolab.com?user=Skor17&theme=matrix&hide_border=true" alt="GitHub Streak" />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=Skor17&layout=compact&theme=matrix&hide_border=true" alt="Top Languages" />
+</p>
 
-Selected work
+---
 
-vessel-updater-v2.0
+## ▸ $ nav --menu
 
-A web-based project for updating vessel Excel files from database information. It is one example of the kind of work I enjoy: connecting different parts of a workflow and turning a repetitive process into a clearer tool.
+```bash
+$ nav --menu
+┌─[ SOCIALS ]──────────────────────────────────────┐
+│  [1] website   →  https://skor17.dev            │
+│  [2] linkedin  →  https://linkedin.com/in/skor17│
+│  [3] contact   →  skor17@proton.me              │
+└──────────────────────────────────────────────────┘
+```
 
-
-One project is part of the story, not the whole story.
-
-Technologies
+---
 
 <div align="center">
 
+```
+> There is no spoon.
+> Wake up, Marcos...
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<img src="https://komarev.com/ghpvc/?username=Skor17&style=flat-square&color=05ff62&label=VISITORS&labelColor=0d1117" alt="Visitor Counter" />
 
 </div>
-
-How I work
-
-Plain Text
-
-
-understand the context  →  make the idea concrete  →  build  →  test  →  refine
-
-
-
-I value clear interfaces, maintainable code, useful documentation, and solutions that make sense beyond the first demo.
-
-GitHub activity
-
-<div align="center"> <img height="165" src="https://github-readme-stats.vercel.app/api?username=Skor17&show_icons=true&hide_border=true&bg_color=ffffff&title_color=111111&icon_color=555555&text_color=444444" alt="Skor17 GitHub stats">
-<img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=Skor17&layout=compact&hide_border=true&bg_color=ffffff&title_color=111111&text_color=444444" alt="Skor17 top languages"> </div>
-
-Contact
-
-The best way to reach me is email.
-
-<div align="center">
-
-[ EOF ]
-
-</div> <!--
-
