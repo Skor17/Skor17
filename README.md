@@ -70,7 +70,7 @@
       <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=Skor17&bg_color=0d1117&text_color=05FF62&title_color=05FF62&icon_color=05FF62&hide_border=true&layout=compact" alt="Top Languages" style="width:100%; border-radius:8px;" />
       <br/><br/>
       <img src="assets/system_monitor.gif" alt="System Monitor" style="width:100%; border-radius:8px;" />
-
+    </td>
     </td>
   </tr>
 </table>
