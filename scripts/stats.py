@@ -14,9 +14,7 @@ import random
 import requests
 
 from svgkit import BG, CRT, DIM, GREEN, HOT, LINE, MID, MONO, PANEL, SVG, crt_defs, frame, overlay
-from cards import refresh_beam, section_title
-
-W = 840
+from cards import NARROW, W, refresh_beam, section_title
 API = "https://api.github.com/graphql"
 
 PROFILE_Q = """
@@ -146,8 +144,13 @@ def fmt(n: int | None) -> str:
 
 
 # ── netstat card ─────────────────────────────────────────────────────────────
-def render_stats(data: dict | None) -> SVG:
-    H = 274
+def render_stats(data: dict | None, W: int = W) -> SVG:
+    narrow = W <= NARROW
+    lx, y0 = 28, 70
+    lw = W - 2 * lx if narrow else 380
+    # narrow: TOP LANGUAGES goes below GITHUB STATS instead of beside it
+    rx, ry = (lx, y0 + 40 + 6 * 27 + 16) if narrow else (450, y0)
+    H = ry + 204
     d = data or {}
     rows = [("STARS EARNED", d.get("stars")), ("COMMITS", d.get("commits")),
             ("PULL REQUESTS", d.get("prs")), ("ISSUES", d.get("issues")),
@@ -159,28 +162,26 @@ def render_stats(data: dict | None) -> SVG:
     desc += ". TOP LANGUAGES — " + (", ".join(f"{n} {p:.1f}%" for n, p in top) or "awaiting first sync")
     svg = SVG(W, H, "GitHub stats", desc)
     crt_defs(svg)
-    frame(svg, "skor17@zion: ~$ netstat --github", f'SYNC {d["synced"]}' if data else "NO SIGNAL")
+    frame(svg, "skor17@zion: ~$ netstat --github", "SYNCED DAILY" if data else "NO SIGNAL")
 
-    lx, y0 = 28, 70
-    section_title(svg, "GITHUB STATS", lx, y0, 380)
+    section_title(svg, "GITHUB STATS", lx, y0, lw)
     for i, (k, v) in enumerate(rows):
         y = y0 + 40 + i * 27
         svg.add(
             svg.text(k, lx, y, 15, MONO, DIM, spacing=1.5),
-            f'<line x1="{lx + 150}" y1="{y - 4}" x2="{lx + 318}" y2="{y - 4}" stroke="{LINE}" stroke-dasharray="1 5"/>',
-            svg.text(fmt(v), lx + 380, y + 2, 26, CRT, HOT if data else DIM, "end", 1,
+            f'<line x1="{lx + 150}" y1="{y - 4}" x2="{lx + lw - 62}" y2="{y - 4}" stroke="{LINE}" stroke-dasharray="1 5"/>',
+            svg.text(fmt(v), lx + lw, y + 2, 26, CRT, HOT if data else DIM, "end", 1,
                      'filter="url(#glow)"' if data else ""),
         )
 
-    rx = 450
     rw = W - rx - 28
-    section_title(svg, "TOP LANGUAGES", rx, y0, rw)
+    section_title(svg, "TOP LANGUAGES", rx, ry, rw)
     svg.styles.append("@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}"
                       ".bar{transform-box:fill-box;transform-origin:left center;animation:fill 1.6s cubic-bezier(.2,.8,.2,1) both}")
     if top:
         bw = rw - 132 - 66
         for i, (name, pct) in enumerate(top):
-            y = y0 + 40 + i * 27
+            y = ry + 40 + i * 27
             svg.add(
                 svg.text(name[:16], rx, y, 15, MONO, HOT),
                 f'<rect x="{rx + 132}" y="{y - 11}" width="{bw}" height="12" fill="{PANEL}" stroke="{LINE}"/>',
@@ -189,7 +190,7 @@ def render_stats(data: dict | None) -> SVG:
                 svg.text(f"{pct:.1f}%", rx + rw, y, 15, MONO, GREEN, "end"),
             )
     else:
-        no_signal(svg, rx + rw / 2, y0 + 105)
+        no_signal(svg, rx + rw / 2, ry + 105)
     overlay(svg)
     refresh_beam(svg)
     return svg
@@ -207,8 +208,9 @@ def no_signal(svg: SVG, cx: float, cy: float) -> None:
 LEVELS = ["#0a2414", "#0f5a2c", "#1a9c4a", GREEN, HOT]
 
 
-def render_activity(data: dict | None, today: dt.date | None = None) -> SVG:
-    H = 284
+def render_activity(data: dict | None, today: dt.date | None = None, W: int = W) -> SVG:
+    narrow = W <= NARROW
+    shown = 27 if narrow else 53  # weeks of the heatmap that fit (incl. the current one)
     today = today or dt.date.today()
     if data:
         weeks = data["weeks"]
@@ -219,16 +221,21 @@ def render_activity(data: dict | None, today: dt.date | None = None) -> SVG:
         weeks, first = [[0] * 7 for _ in range(53)], today - dt.timedelta(days=52 * 7 + today.isoweekday() % 7)
         total = cur = longest = None
         best, year_total = None, None
+    first += dt.timedelta(weeks=max(0, len(weeks) - shown))
+    weeks = weeks[-shown:]
     figures = [("TOTAL CONTRIBUTIONS", fmt(total)), ("CURRENT STREAK", f"{cur}d" if cur is not None else "--"),
                ("LONGEST STREAK", f"{longest}d" if longest is not None else "--"), ("BEST DAY", best or "--")]
+    # narrow: the four figures sit in a 2x2 grid
+    per_row = 2 if narrow else 4
+    H = 284 + (64 if narrow else 0)
     svg = SVG(W, H, "Contribution activity",
               f"Contribution heatmap for the last year ({fmt(year_total)} contributions). "
               + ", ".join(f"{k}: {v}" for k, v in figures))
     crt_defs(svg)
-    frame(svg, "skor17@zion: ~$ cat contrib.log --last 52w",
+    frame(svg, f"skor17@zion: ~$ cat contrib.log --last {shown - 1}w",
           f"{fmt(year_total)} IN THE LAST YEAR" if data else "NO SIGNAL")
 
-    cell, gap = 11, 3
+    cell, gap = (10, 3) if narrow else (11, 3)
     step = cell + gap
     gx = (W - len(weeks) * step + gap) / 2 + 12
     gy = 74
@@ -271,10 +278,10 @@ def render_activity(data: dict | None, today: dt.date | None = None) -> SVG:
     svg.add(svg.text("MORE", lgx + 5 * 14 + 6, ly + 10, 14, CRT, DIM, spacing=1))
 
     # figures
-    fy = 246
-    fw = (W - 56) / 4
+    fw = (W - 56) / per_row
     for i, (label, value) in enumerate(figures):
-        x = 28 + i * fw
+        x = 28 + i % per_row * fw
+        fy = 246 + i // per_row * 64
         svg.add(
             f'<rect x="{x + 4:.1f}" y="{fy - 34}" width="{fw - 8:.1f}" height="56" rx="4" fill="{PANEL}" stroke="{LINE}"/>',
             svg.text(value, x + fw / 2, fy - 2, 28, CRT, HOT if data else DIM, "middle", 1,

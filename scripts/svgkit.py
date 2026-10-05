@@ -180,7 +180,11 @@ def frame(svg: SVG, label: str, right: str = "", uid: str = "") -> None:
     )
     for i, c in enumerate(("#ff5f56", AMBER, GREEN)):
         svg.add(f'<circle cx="{20 + i * 18}" cy="17.5" r="5" fill="none" stroke="{c}" stroke-width="1.5" opacity=".85"/>')
-    svg.add(svg.text(label, 84, 23, 14, MONO, GREEN, spacing=1.5))
+    # shrink the title to fit, and drop the right-hand label when there is no room for both
+    size = min(14, 14 * (w - 102) / MONO.width(label, 14, 1.5))
+    svg.add(svg.text(label, 84, 23, size, MONO, GREEN, spacing=1.5))
+    if right and 84 + MONO.width(label, size, 1.5) + 24 + MONO.width(right, 14, 1) > w - 18:
+        right = ""
     if right:
         svg.add(svg.text(right, w - 18, 23, 14, MONO, DIM, anchor="end", spacing=1))
 
