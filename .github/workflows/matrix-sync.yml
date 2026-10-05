@@ -1,0 +1,57 @@
+name: matrix-sync
+
+# Rebuilds every card in assets/ and refreshes the GitHub stats once a day.
+# Works with the built-in GITHUB_TOKEN (public activity only). To include
+# private contributions, add a classic PAT with `read:user` + `repo` scopes as
+# a repository secret named STATS_TOKEN.
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - profile.toml
+      - "scripts/**"
+      - .github/workflows/matrix-sync.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: matrix-sync
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+
+      - run: pip install -r scripts/requirements.txt
+
+      - name: Build cards
+        run: python scripts/build.py --fetch --user "${{ github.repository_owner }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.STATS_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets data
+          if git diff --cached --quiet; then
+            echo "Cards already up to date."
+            exit 0
+          fi
+          git commit -m "chore: sync matrix cards [skip ci]"
+          # a push to the branch while this job ran would reject a plain push
+          git pull --rebase --autostash
+          git push
