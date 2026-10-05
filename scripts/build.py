@@ -1,10 +1,12 @@
-"""Build every profile card as a PNG in assets/desktop/ and assets/mobile/.
+"""Build every profile card as a PNG in assets/cards/, plus the rain banner assets/rain.gif.
 
     python scripts/build.py            # rebuild from profile.toml + cached data/github.json
     GITHUB_TOKEN=... python scripts/build.py --fetch [--user Skor17]   # refresh GitHub stats first
 
 Cards are drawn as SVG (kept in assets/_svg/, git-ignored) and then rasterized:
-PNG displays identically in every browser and in the GitHub mobile apps.
+PNG displays identically in every browser and in the GitHub mobile apps. They use
+the narrow (stacked) layout, which stays readable on a phone; the README shows them
+520px wide on desktop.
 """
 
 from __future__ import annotations
@@ -19,13 +21,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
 
+import banner  # noqa: E402
 import cards  # noqa: E402
 import raster  # noqa: E402
 import stats  # noqa: E402
 
 ASSETS = ROOT / "assets"
-# (folder, card width, pixel density): desktop browsers, and a stacked layout for phones
-VARIANTS = (("desktop", cards.W, 2), ("mobile", cards.NARROW, 3))
+WIDTH, SCALE = cards.NARROW, 3  # card layout width and pixel density of the PNGs
 CACHE = ROOT / "data" / "github.json"
 
 
@@ -56,16 +58,17 @@ def main() -> None:
     if data is None:
         print("no GitHub stats yet: stats cards show a placeholder")
 
+    svgs = {name: build(profile, W=WIDTH) for name, build in cards.STATIC_CARDS.items()}
+    svgs["stats"] = stats.render_stats(data, W=WIDTH)
+    svgs["activity"] = stats.render_activity(data, W=WIDTH)
     jobs = []
-    for variant, width, scale in VARIANTS:
-        svgs = {name: build(profile, W=width) for name, build in cards.STATIC_CARDS.items()}
-        svgs["stats"] = stats.render_stats(data, W=width)
-        svgs["activity"] = stats.render_activity(data, W=width)
-        for name, svg in svgs.items():
-            src = ASSETS / "_svg" / variant / f"{name}.svg"
-            svg.save(src)
-            jobs.append((src, ASSETS / variant / f"{name}.png", scale))
+    for name, svg in svgs.items():
+        src = ASSETS / "_svg" / f"{name}.svg"
+        svg.save(src)
+        jobs.append((src, ASSETS / "cards" / f"{name}.png", SCALE))
     raster.rasterize(jobs)
+    banner.render(ASSETS / "rain.gif")
+    print("built assets/rain.gif")
     for _, png, _ in jobs:
         print(f"built {png.relative_to(ROOT)}")
 
