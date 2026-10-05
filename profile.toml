@@ -1,0 +1,49 @@
+# Everything shown on the profile cards lives here.
+# Edit, then run `python scripts/build.py` (or just push: the GitHub Action
+# rebuilds every card). Stick to plain ASCII plus "·" and "@".
+#
+# Keep it timeless: no employer, job title, location or dates, so nothing
+# goes stale when those change. GitHub stats update themselves every day.
+
+boot = [
+  ["boot sequence initiated", ""],
+  ["loading core modules", "OK"],
+  ["establishing uplink :: zion.mainframe", "OK"],
+  ["decrypting profile", "OK"],
+  ["bypassing ICE", "OK"],
+]
+
+# rows of the PROFILE panel: [label, value]
+profile = [
+  ["NAME", "Marcos Skorupsky"],
+  ["ALIAS", "SKOR17"],
+  ["STATUS", "Online"],
+]
+
+focus = [
+  "Backend & Web Development",
+  "REST API Integration",
+  "Automation & Data Pipelines",
+  "Testing & Quality Assurance",
+]
+
+# spoken languages, listed without levels: [name, ISO 639-1 code]
+spoken = [
+  ["SPANISH", "es"],
+  ["ENGLISH", "en"],
+  ["GERMAN", "de"],
+]
+
+[identity]
+handle = "SKOR17"
+name   = "Marcos Skorupsky"
+motto  = "There is no spoon. Free your mind."
+
+[stack]
+"LANGUAGES"         = ["Python", "C++", "JavaScript"]
+"WEB & BACKEND"     = ["HTML5", "CSS3", "FastAPI", "REST APIs"]
+"DATABASES"         = ["PostgreSQL", "MySQL"]
+"DATA & AI"         = ["Pandas", "NumPy", "LLM APIs"]
+"TESTING & QA"      = ["Playwright", "Selenium"]
+"TOOLS & PLATFORMS" = ["Git", "GitHub Actions", "Docker", "Linux", "VS Code", "Postman"]
+"ENTERPRISE"        = ["Jira", "SAP", "Confluence", "Microsoft Office", "Microsoft Teams", "Outlook"]
