@@ -8,7 +8,8 @@ import random
 from svgkit import (BG, CRT, CYAN, DIM, DISPLAY, GREEN, HOT, LINE, MAGENTA, MID, MONO,
                     PANEL, SVG, crt_defs, frame, overlay)
 
-W = 840
+W = 840          # desktop card width; phones get NARROW-wide cards with stacked columns
+NARROW = 440
 RAIN_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*+=<>:;|/\\?!"
 
 
@@ -25,6 +26,11 @@ def refresh_beam(svg: SVG) -> None:
         ".beam{animation:beam 7s linear infinite}"
     )
     svg.add(f'<g class="beam"><rect x="1" y="0" width="{svg.w - 2}" height="80" fill="url(#beam)"/></g>')
+
+
+def fit(font, s: str, size: float, max_w: float, spacing: float = 0) -> float:
+    """Largest font size <= size at which s fits in max_w."""
+    return min(size, size * max_w / font.width(s, size, spacing))
 
 
 def digital_rain(svg: SVG, seed: int, height: int, cols: int, size: float = 17,
@@ -60,7 +66,7 @@ def digital_rain(svg: SVG, seed: int, height: int, cols: int, size: float = 17,
 
 
 # ── HEADER ───────────────────────────────────────────────────────────────────
-def header(p: dict) -> SVG:
+def header(p: dict, W: int = W) -> SVG:
     me = p["identity"]
     H = 300
     svg = SVG(W, H, f'{me["handle"]} // {me["name"]}',
@@ -92,7 +98,7 @@ def header(p: dict) -> SVG:
     svg.add(f'<g clip-path="url(#card)">', f'<rect width="{W}" height="{H}" fill="{BG}"/>')
 
     # digital rain behind everything
-    digital_rain(svg, seed=17, height=H, cols=52, opacity=0.5)
+    digital_rain(svg, seed=17, height=H, cols=round(W / 16), opacity=0.5)
 
     # horizon haze + striped sun
     svg.add(
@@ -120,7 +126,8 @@ def header(p: dict) -> SVG:
 
     # glitching title
     title = me["handle"]
-    ty, ts = 120, 74
+    ty = 120
+    ts = fit(DISPLAY, title, 74, W - 56, 10)
     svg.styles.append(
         "@keyframes gA{0%,86%,100%{transform:translate(0,0);opacity:0}87%{transform:translate(-6px,1px);opacity:.9}"
         "89%{transform:translate(4px,-1px);opacity:.9}91%{transform:translate(-2px,0);opacity:.8}92%{opacity:0}}"
@@ -138,7 +145,7 @@ def header(p: dict) -> SVG:
         f'<clipPath id="band1"><rect x="0" y="{ty - 44}" width="{W}" height="9"/></clipPath>'
         f'<clipPath id="band2"><rect x="0" y="{ty - 18}" width="{W}" height="6"/></clipPath>'
     )
-    glyphs = lambda col, extra="": svg.text(title, cx, ty, ts, DISPLAY, col, "middle", 10, extra)  # noqa: E731
+    glyphs = lambda col, extra="": svg.text(title, cx, ty, ts, DISPLAY, col, "middle", 10 * ts / 74, extra)  # noqa: E731
     svg.add(
         f'<g class="gA">{glyphs(MAGENTA)}</g>',
         f'<g class="gB">{glyphs(CYAN)}</g>',
@@ -149,23 +156,25 @@ def header(p: dict) -> SVG:
 
     # subtitle with a dark outline so it stays readable over the sun
     sub = f'//  {me["name"].upper()}  //'
-    svg.add(svg.text(sub, cx, 160, 18, MONO, HOT, "middle", 3,
-                     f'stroke="{BG}" stroke-width="{6 * 1000 / 18:.0f}" paint-order="stroke" stroke-linejoin="round"'))
+    ss = fit(MONO, sub, 18, W - 48, 3)
+    svg.add(svg.text(sub, cx, 160, ss, MONO, HOT, "middle", 3,
+                     f'stroke="{BG}" stroke-width="{6 * 1000 / ss:.0f}" paint-order="stroke" stroke-linejoin="round"'))
 
     # HUD corners
     svg.add(
-        svg.text("> NEO_PROTOCOL v1.7", 22, 30, 18, CRT, DIM, spacing=1),
-        svg.text("LINK: STABLE", W - 22, 30, 18, CRT, DIM, "end", 1),
+        svg.text("> NEO_PROTOCOL v1.7", 22, 30, 18 if W > NARROW else 16, CRT, DIM, spacing=1),
+        svg.text("LINK: STABLE", W - 22, 30, 18 if W > NARROW else 16, CRT, DIM, "end", 1),
     )
 
     # access banner on the floor
     banner = "[ SYSTEM INITIALIZED ] :: ACCESS GRANTED"
-    tw = CRT.width(banner, 24, 1.5)
+    bs = fit(CRT, banner, 24, W - 84, 1.5)
+    tw = CRT.width(banner, bs, 1.5)
     bw = tw + 52
     svg.styles.append("@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}.blink{animation:blink 1.06s steps(1) infinite}")
     svg.add(
         f'<rect x="{cx - bw / 2:.1f}" y="244" width="{bw:.1f}" height="34" rx="3" fill="{BG}" fill-opacity=".9" stroke="{GREEN}" stroke-opacity=".7"/>',
-        svg.text(banner, cx - 9, 268, 24, CRT, GREEN, "middle", 1.5, 'filter="url(#glow)"'),
+        svg.text(banner, cx - 9, 268, bs, CRT, GREEN, "middle", 1.5, 'filter="url(#glow)"'),
         f'<rect class="blink" x="{cx - 9 + tw / 2 + 6:.1f}" y="252" width="9" height="18" fill="{GREEN}"/>',
     )
     svg.add(f'<rect width="{W}" height="{H}" fill="url(#scan)"/>', f'<rect width="{W}" height="{H}" fill="url(#vig)"/>')
@@ -175,17 +184,20 @@ def header(p: dict) -> SVG:
 
 
 # ── BOOT LOG ─────────────────────────────────────────────────────────────────
-def boot(p: dict) -> SVG:
+def boot(p: dict, W: int = W) -> SVG:
+    narrow = W <= NARROW
     rows = [tuple(r) for r in p["boot"]] + [("ACCESS GRANTED", "")]
-    H = 66 + len(rows) * 27 + 12
+    lh = 24 if narrow else 27
+    H = 66 + len(rows) * lh + 12
     svg = SVG(W, H, "Boot sequence",
               "Terminal boot log: " + "; ".join(f"{a} {b}".strip() for a, b in rows))
     crt_defs(svg)
     frame(svg, "skor17@zion: ~/boot.log", "TTY1")
 
-    size, lh, x0, y0 = 16, 27, 28, 70
+    size, x0, y0 = (13 if narrow else 16), 28, 70
     cw = MONO.width("M", size)
-    status_col = 52  # column where "[ OK ]" starts
+    # column where "[ OK ]" starts
+    status_col = max(len(f"> {m} ") for m, st in rows if st) + 4 if narrow else 52
     cycle = 12.0
     t, typed = 0.4, []
     css = []
@@ -198,13 +210,15 @@ def boot(p: dict) -> SVG:
         else:
             line = f"> {msg}" + ("" if last else "...")
         chars = len(line) + (6 if status else 0)
+        # the last line is drawn bigger: slide the cover by its real width
+        reveal = MONO.width(line, size + 2, 1) + cw if last else chars * cw
         dur = chars * 0.018
         s, e = t / cycle * 100, (t + dur) / cycle * 100
         t += dur + (0.45 if status else 0.25)
         # cover slides right in character steps -> typing effect
         css.append(
             f"@keyframes ty{i}{{0%,{s:.2f}%{{transform:translateX(0);animation-timing-function:steps({chars},end)}}"
-            f"{e:.2f}%,99.5%{{transform:translateX({chars * cw:.1f}px)}}100%{{transform:translateX(0)}}}}"
+            f"{e:.2f}%,99.5%{{transform:translateX({reveal:.1f}px)}}100%{{transform:translateX(0)}}}}"
             f".ty{i}{{animation:ty{i} {cycle}s infinite}}"
             f"@keyframes cu{i}{{0%,{s - 0.01:.2f}%{{opacity:0}}{s:.2f}%,{e:.2f}%{{opacity:1}}"
             f"{e + 0.01:.2f}%,100%{{opacity:{1 if last else 0}}}}}"
@@ -218,8 +232,8 @@ def boot(p: dict) -> SVG:
             typed.append(svg.text("[", x0 + len(line) * cw, y, size, MONO, DIM)
                          + svg.text(status, x0 + (len(line) + 1.5) * cw, y, size, MONO, GREEN, attrs='filter="url(#glow)"')
                          + svg.text("]", x0 + (len(line) + 4.5) * cw, y, size, MONO, DIM))
-        cursor = f'<g class="blink"><rect x="0" y="{y - 14}" width="{cw:.1f}" height="17" fill="{GREEN}"/></g>' if last else \
-            f'<rect x="0" y="{y - 14}" width="{cw:.1f}" height="17" fill="{GREEN}"/>'
+        cursor = f'<g class="blink"><rect x="0" y="{y - size * .875:.1f}" width="{cw:.1f}" height="{size * 1.06:.1f}" fill="{GREEN}"/></g>' if last else \
+            f'<rect x="0" y="{y - size * .875:.1f}" width="{cw:.1f}" height="{size * 1.06:.1f}" fill="{GREEN}"/>'
         typed.append(
             f'<g transform="translate({x0} 0)"><g class="ty{i}">'
             f'<rect x="0" y="{y - 19}" width="{W}" height="{lh}" fill="{BG}"/>'
@@ -228,7 +242,11 @@ def boot(p: dict) -> SVG:
     svg.styles.append("".join(css))
     svg.styles.append("@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}.blink{animation:blink 1.06s steps(1) infinite}")
     svg.add(f'<g clip-path="url(#bootclip)">', *typed, "</g>")
-    svg.defs.append(f'<clipPath id="bootclip"><rect x="{x0 - 4}" y="40" width="{W - 260 - x0}" height="{H - 44}"/></clipPath>')
+    svg.defs.append(f'<clipPath id="bootclip"><rect x="{x0 - 4}" y="40" width="{W - (2 * x0 - 8 if narrow else 260 + x0)}" height="{H - 44}"/></clipPath>')
+    if narrow:  # no room for the oscilloscope
+        overlay(svg)
+        refresh_beam(svg)
+        return svg
 
     # oscilloscope on the right
     ox, oy, ow, oh = W - 236, 52, 212, H - 70
@@ -263,22 +281,25 @@ def section_title(svg: SVG, label: str, x: float, y: float, width: float) -> Non
     )
 
 
-def whoami(p: dict) -> SVG:
-    H = 236
+def whoami(p: dict, W: int = W) -> SVG:
+    narrow = W <= NARROW
     rows = [tuple(r) for r in p["profile"]]
+    lx, top = 28, 70
+    # narrow: FOCUS goes below PROFILE instead of beside it
+    rx, ftop = (lx, top + 42 + len(rows) * 32 + 18) if narrow else (452, top)
+    H = max(top + 42 + (len(rows) - 1) * 32, ftop + 42 + (len(p["focus"]) - 1) * 32) + 28
     svg = SVG(W, H, "whoami",
               "PROFILE — " + ", ".join(f"{k}: {v}" for k, v in rows) + ". FOCUS — " + "; ".join(p["focus"]))
     crt_defs(svg)
     frame(svg, "skor17@zion: ~$ whoami", "UID 1017")
-    lx, rx, top = 28, 452, 70
-    section_title(svg, "PROFILE", lx, top, 396)
+    section_title(svg, "PROFILE", lx, top, W - 2 * lx if narrow else 396)
     for i, (k, v) in enumerate(rows):
         y = top + 42 + i * 32
         svg.add(svg.text(k, lx, y, 15, MONO, DIM, spacing=1.5), svg.text(v, lx + 112, y, 16, MONO, HOT))
-    section_title(svg, "FOCUS", rx, top, W - rx - 28)
+    section_title(svg, "FOCUS", rx, ftop, W - rx - 28)
     svg.styles.append("@keyframes led{0%,100%{opacity:1}50%{opacity:.35}}.led{animation:led 2s ease-in-out infinite}")
     for i, f in enumerate(p["focus"]):
-        y = top + 42 + i * 32
+        y = ftop + 42 + i * 32
         svg.add(
             f'<rect x="{rx}" y="{y - 11}" width="10" height="10" fill="none" stroke="{GREEN}"/>',
             f'<rect class="led" style="animation-delay:{-i * 0.5}s" x="{rx + 2.5}" y="{y - 8.5}" width="5" height="5" fill="{GREEN}"/>',
@@ -290,15 +311,18 @@ def whoami(p: dict) -> SVG:
 
 
 # ── COMMS: spoken languages + system monitor ─────────────────────────────────
-def comms(p: dict) -> SVG:
-    H = 286
+def comms(p: dict, W: int = W) -> SVG:
+    narrow = W <= NARROW
     spoken = [tuple(s) for s in p["spoken"]]
+    lx, top = 28, 70
+    lw = W - 2 * lx if narrow else 380
+    # narrow: the system monitor goes below the languages instead of beside them
+    mx, mtop = (lx, top + 50 + len(spoken) * 54 + 6) if narrow else (450, top)
+    H = max(286, mtop + 216)
     svg = SVG(W, H, "Languages and system monitor",
               "LANGUAGES — " + ", ".join(name.title() for name, _ in spoken) + ". Decorative system monitor.")
     crt_defs(svg)
     frame(svg, "skor17@zion: ~$ locale --human && htop", "LIVE")
-    lx, top = 28, 70
-    lw = 380
     section_title(svg, "LANGUAGES", lx, top, lw)
     # every language gets the same idle "voice signal": decoration, not a proficiency meter
     svg.styles.append(
@@ -323,9 +347,8 @@ def comms(p: dict) -> SVG:
     svg.styles.append("@keyframes led{0%,100%{opacity:1}50%{opacity:.35}}.led{animation:led 2s ease-in-out infinite}")
 
     # system monitor
-    mx = 450
     mw = W - mx - 28
-    section_title(svg, "SYSTEM MONITOR", mx, top, mw)
+    section_title(svg, "SYSTEM MONITOR", mx, mtop, mw)
     svg.styles.append(
         "@keyframes cpu{0%{transform:scaleX(.42)}20%{transform:scaleX(.71)}40%{transform:scaleX(.36)}"
         "60%{transform:scaleX(.88)}80%{transform:scaleX(.55)}100%{transform:scaleX(.42)}}"
@@ -335,7 +358,7 @@ def comms(p: dict) -> SVG:
     )
     bw = mw - 128
     for i, (lbl, cls, load) in enumerate((("CPU", "cpu", "LOAD 0.42"), ("RAM", "ram", "6.6/10G"))):
-        y = top + 40 + i * 28
+        y = mtop + 40 + i * 28
         svg.add(
             svg.text(lbl, mx, y, 15, MONO, DIM, spacing=1.5),
             svg.text(load, mx + mw, y, 12, MONO, MID, "end"),
@@ -345,7 +368,7 @@ def comms(p: dict) -> SVG:
     procs = [("1024", "python3", "architect.py", "34"), ("2048", "oracle", "--predict", "22"),
              ("3072", "sentinel", "--patrol", "12"), ("4096", "agent.smith", "--replicate", "18"),
              ("5120", "git", "push origin", "4")]
-    ty = top + 104
+    ty = mtop + 104
     cols = (0, 52, 150, mw)
     for j, h in enumerate(("PID", "PROCESS", "ARGS", "CPU%")):
         svg.add(svg.text(h, mx + cols[j], ty, 13, MONO, DIM, "end" if j == 3 else "start", 1))
@@ -363,13 +386,17 @@ def comms(p: dict) -> SVG:
 
 
 # ── TECH STACK ───────────────────────────────────────────────────────────────
-def stack(p: dict) -> SVG:
+def stack(p: dict, W: int = W) -> SVG:
+    narrow = W <= NARROW
     cats = p["stack"]
-    lx, chip_x0, top = 28, 226, 70
+    # narrow: each category label sits on its own line above its chips
+    lx, chip_x0, top = 28, (28 if narrow else 226), 70
     size, pad, ch_h, gap = 14, 10, 24, 8
     # lay out chips first to know the height
     rows, y = [], top
     for cat, items in cats.items():
+        if narrow:
+            y += 22
         x = chip_x0
         placed = []
         for it in items:
@@ -390,7 +417,7 @@ def stack(p: dict) -> SVG:
     k = 0
     for cat, placed, _ in rows:
         cy = placed[0][2]
-        svg.add(svg.text("// " + cat, lx, cy + 16.5, 14, MONO, DIM, spacing=1))
+        svg.add(svg.text("// " + cat, lx, cy - 8 if narrow else cy + 16.5, 14, MONO, DIM, spacing=1))
         for it, x, y, w in placed:
             svg.add(
                 f'<rect class="chip" style="animation-delay:{k * 0.25:.2f}s" x="{x:.1f}" y="{y}" width="{w:.1f}" height="{ch_h}" rx="3" '
@@ -404,17 +431,17 @@ def stack(p: dict) -> SVG:
 
 
 # ── FOOTER ───────────────────────────────────────────────────────────────────
-def footer(p: dict) -> SVG:
+def footer(p: dict, W: int = W) -> SVG:
     H = 96
     motto = p["identity"]["motto"]
     svg = SVG(W, H, motto, f"> {motto}  Wake up, Neo... follow the white rabbit.")
     crt_defs(svg)
     svg.add(f'<rect x=".5" y=".5" width="{W - 1}" height="{H - 1}" rx="10" fill="{BG}" stroke="{LINE}"/>')
-    digital_rain(svg, seed=99, height=H, cols=52, size=14, opacity=0.22,
+    digital_rain(svg, seed=99, height=H, cols=round(W / 16), size=14, opacity=0.22,
                  clip='clip-path="url(#fclip)"')
     svg.defs.append(f'<clipPath id="fclip"><rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="9"/></clipPath>')
     line = f"> {motto}"
-    size = 20
+    size = fit(MONO, line + " ", 20, W - 40)
     cw = MONO.width("M", size)
     n = len(line)
     x0 = W / 2 - n * cw / 2
@@ -429,7 +456,8 @@ def footer(p: dict) -> SVG:
         svg.text(line, x0, 48, size, MONO, GREEN, spacing=0, attrs='filter="url(#glow)"'),
         f'<g transform="translate({x0:.1f} 0)"><g class="ft"><rect x="0" y="26" width="{n * cw + 40:.1f}" height="30" fill="{BG}"/>'
         f'<rect class="blink" x="2" y="31" width="{cw * 0.8:.1f}" height="21" fill="{GREEN}"/></g></g>',
-        svg.text("WAKE UP, NEO...  FOLLOW THE WHITE RABBIT.", W / 2, 78, 18, CRT, DIM, "middle", 2),
+        svg.text("WAKE UP, NEO...  FOLLOW THE WHITE RABBIT.", W / 2, 78,
+                 fit(CRT, "WAKE UP, NEO...  FOLLOW THE WHITE RABBIT.", 18, W - 48, 2), CRT, DIM, "middle", 2),
     )
     overlay(svg)
     return svg
