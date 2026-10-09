@@ -13,9 +13,10 @@ from pathlib import Path
 from fontTools.ttLib import TTFont
 from PIL import Image, ImageDraw, ImageFont
 
-from svgkit import BG, FONT_DIR, GREEN, HOT, LINE
+FONT_DIR = Path(__file__).parent / "fonts"
+BG, LINE, GREEN, HOT = "#020a04", "#0f3d1f", "#05ff62", "#b8ffd0"  # CRT glass, frame, phosphor, glyph head
 
-W, H = 900, 220           # pixels; shown full width above the cards
+W, H = 900, 220           # pixels; shown full width at the top of the README
 CELL_W, CELL_H = 14, 16   # one glyph per cell
 FRAMES, FRAME_MS = 42, 80  # ~3.4 s seamless loop
 LEVELS = 14               # brightness steps of the falling trails
@@ -58,7 +59,7 @@ def render(path: Path, seed: int = 1999) -> None:
         streams.append((tail, length, laps, rnd.uniform(0, length)))
     bits = [[rnd.getrandbits(FRAMES // 3) for _ in range(rows)] for _ in range(cols)]
 
-    # rounded card shape, same as the other cards (corners transparent)
+    # rounded card shape (corners transparent)
     mask = Image.new("L", (W, H), 0)
     ImageDraw.Draw(mask).rounded_rectangle((0, 0, W - 1, H - 1), radius=10, fill=255)
 

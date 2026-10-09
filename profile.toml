@@ -1,6 +1,7 @@
-# Everything shown on the profile cards lives here.
+# Everything on the profile lives here: README.md is generated from this file.
 # Edit, then run `python scripts/build.py` (or just push: the GitHub Action
-# rebuilds every card). Stick to plain ASCII plus "·" and "@".
+# rebuilds the README). Plain ASCII only, and keep lines short: the build stops
+# with a clear message if a line would be too wide to read on a phone.
 #
 # Keep it timeless: no employer, job title, location or dates, so nothing
 # goes stale when those change. GitHub stats update themselves every day.
@@ -8,7 +9,7 @@
 boot = [
   ["boot sequence initiated", ""],
   ["loading core modules", "OK"],
-  ["establishing uplink :: zion.mainframe", "OK"],
+  ["establishing uplink", "OK"],
   ["decrypting profile", "OK"],
   ["bypassing ICE", "OK"],
 ]
