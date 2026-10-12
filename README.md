@@ -21,7 +21,7 @@
 </p>
 
 <details>
-<summary><b><code>&gt;_ TEXT MODE</code></b> &nbsp;images not loading?</summary>
+<summary><b><code>&gt;_ TEXT MODE</code></b> &nbsp;images not loading? the whole profile as plain text</summary>
 
 ```text
    _____ __ ______  ____ ________
@@ -80,7 +80,7 @@ skor17@zion:~$ ls ~/arsenal
 ```text
 skor17@zion:~$ netstat --github
 STARS EARNED ..................... 0
-COMMITS ......................... 99
+COMMITS ........................ 100
 PULL REQUESTS .................... 5
 ISSUES ........................... 0
 REPOSITORIES .................... 10
@@ -104,8 +104,8 @@ Thu ..............@.....:..::
 Fri .....................::..
 Sat .........................
     less . : + # @ more
-CONTRIBUTIONS (ALL TIME) ....... 117
-LAST 12 MONTHS .................. 99
+CONTRIBUTIONS (ALL TIME) ....... 118
+LAST 12 MONTHS ................. 100
 CURRENT STREAK .................. 1d
 LONGEST STREAK .................. 3d
 BEST DAY ........................ 40
