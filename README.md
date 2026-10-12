@@ -87,12 +87,12 @@ REPOSITORIES .................... 10
 CONTRIBUTED TO ................... 0
 
 skor17@zion:~$ top --languages
-TypeScript  [##########]  39.7%
-Python      [#####.....]  18.1%
-HTML        [####......]  16.1%
-JavaScript  [###.......]  13.5%
-CSS         [###.......]  10.0%
-C++         [#.........]   2.2%
+TypeScript  [##########]  36.9%
+Python      [######....]  23.9%
+HTML        [####......]  15.0%
+JavaScript  [###.......]  12.5%
+CSS         [###.......]   9.3%
+C++         [#.........]   2.1%
 
 skor17@zion:~$ cat contrib.log
       MAY  JUN JUL AUG  SEP
