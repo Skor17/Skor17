@@ -21,7 +21,7 @@
 </p>
 
 <details>
-<summary><b><code>&gt;_ TEXT MODE</code></b> &nbsp;images not loading? the whole profile as plain text</summary>
+<summary><b><code>&gt;_ TEXT MODE</code></b> &nbsp;images not loading?</summary>
 
 ```text
    _____ __ ______  ____ ________
