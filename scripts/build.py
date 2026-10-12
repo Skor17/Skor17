@@ -1,12 +1,7 @@
-"""Build every profile card as a PNG in assets/cards/, plus the rain banner assets/rain.gif.
+"""Build README.md (all text) and the decorative rain banner assets/rain.gif.
 
     python scripts/build.py            # rebuild from profile.toml + cached data/github.json
     GITHUB_TOKEN=... python scripts/build.py --fetch [--user Skor17]   # refresh GitHub stats first
-
-Cards are drawn as SVG (kept in assets/_svg/, git-ignored) and then rasterized:
-PNG displays identically in every browser and in the GitHub mobile apps. They use
-the narrow (stacked) layout, which stays readable on a phone; the README shows them
-520px wide on desktop.
 """
 
 from __future__ import annotations
@@ -22,12 +17,9 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
 
 import banner  # noqa: E402
-import cards  # noqa: E402
-import raster  # noqa: E402
+import readme  # noqa: E402
 import stats  # noqa: E402
 
-ASSETS = ROOT / "assets"
-WIDTH, SCALE = cards.NARROW, 3  # card layout width and pixel density of the PNGs
 CACHE = ROOT / "data" / "github.json"
 
 
@@ -46,7 +38,7 @@ def main() -> None:
             sys.exit("--fetch needs GITHUB_TOKEN")
         try:
             data = stats.fetch(args.user, token)
-        except Exception as exc:  # keep the last good snapshot rather than publishing a broken card
+        except Exception as exc:  # keep the last good snapshot rather than publishing a broken README
             print(f"::warning::GitHub stats fetch failed, keeping cached data: {exc}")
         else:
             CACHE.parent.mkdir(exist_ok=True)
@@ -54,23 +46,13 @@ def main() -> None:
             print(f"fetched stats for {args.user}")
     if data is None and CACHE.exists():
         data = json.loads(CACHE.read_text(encoding="utf-8"))
-
     if data is None:
-        print("no GitHub stats yet: stats cards show a placeholder")
+        print("no GitHub stats yet: the README shows a placeholder")
 
-    svgs = {name: build(profile, W=WIDTH) for name, build in cards.STATIC_CARDS.items()}
-    svgs["stats"] = stats.render_stats(data, W=WIDTH)
-    svgs["activity"] = stats.render_activity(data, W=WIDTH)
-    jobs = []
-    for name, svg in svgs.items():
-        src = ASSETS / "_svg" / f"{name}.svg"
-        svg.save(src)
-        jobs.append((src, ASSETS / "cards" / f"{name}.png", SCALE))
-    raster.rasterize(jobs)
-    banner.render(ASSETS / "rain.gif")
+    (ROOT / "README.md").write_text(readme.render(profile, data, args.user), encoding="utf-8")
+    print("built README.md")
+    banner.render(ROOT / "assets" / "rain.gif")
     print("built assets/rain.gif")
-    for _, png, _ in jobs:
-        print(f"built {png.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

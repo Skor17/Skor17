@@ -1,27 +1,29 @@
-# Card generator
+# Profile generator
 
-All images in `assets/` are generated, do not edit them by hand. Each card is drawn as
-SVG and rendered to `assets/cards/*.png` (440px layout, 3x pixels) because PNG
-displays the same everywhere, including the GitHub mobile apps. `assets/rain.gif`
-is the text-free binary rain banner.
+`README.md` at the repo root is generated: edit `profile.toml`, not the README.
+
+Everything readable is plain text in code blocks, which github.com draws itself, so
+the profile looks the same in every browser, theme and screen size, in the GitHub
+mobile apps, with screen readers, and on networks that block GitHub's image servers
+(`*.githubusercontent.com`). The two images (rain banner, visitor counter) are
+decorative with `alt=""`, so if they can't load they disappear instead of leaving
+broken links. Code-block lines are capped at 36 ASCII characters so they fit a phone
+screen; the build stops with a clear message if a line in `profile.toml` is too long.
 
 | file | what it does |
 | --- | --- |
-| `../profile.toml` | the content: name, profile rows, focus, spoken languages, stack |
+| `../profile.toml` | the content: boot log, profile rows, focus, spoken languages, stack |
 | `build.py` | entry point; `--fetch` refreshes GitHub stats into `../data/github.json` |
-| `raster.py` | renders the SVGs to PNG with headless Chromium (Playwright) |
-| `banner.py` | the looping binary rain GIF |
-| `cards.py` | static cards (header, boot log, whoami, languages/monitor, stack, footer) |
-| `stats.py` | GitHub stats + contribution heatmap, via the GraphQL API |
-| `svgkit.py` | turns text into glyph outlines so cards render identically everywhere |
-| `fonts/` | Orbitron, Share Tech Mono, VT323 (SIL OFL 1.1, see `OFL.txt`) |
+| `readme.py` | renders `README.md` as terminal transcripts |
+| `stats.py` | GitHub stats + contribution calendar, via the GraphQL API |
+| `banner.py` | the looping binary rain GIF (`../assets/rain.gif`) |
+| `fonts/` | VT323 for the rain glyphs (SIL OFL 1.1, see `OFL.txt`) |
 
 ```sh
 pip install -r scripts/requirements.txt
-python -m playwright install chromium
 python scripts/build.py                                   # rebuild from cached stats
 GITHUB_TOKEN=ghp_xxx python scripts/build.py --fetch      # also refresh stats
 ```
 
 The `matrix-sync` workflow runs this every day and on every push that touches
-`profile.toml` or `scripts/`, then commits the updated PNGs.
+`profile.toml` or `scripts/`, then commits the updated README.
