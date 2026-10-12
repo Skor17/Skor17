@@ -1,7 +1,7 @@
 name: matrix-sync
 
-# Rebuilds README.md (all text) and assets/rain.gif, and refreshes the GitHub
-# stats once a day.
+# Rebuilds README.md and every card in assets/, and refreshes the GitHub stats
+# once a day.
 # Works with the built-in GITHUB_TOKEN (public activity only). To include
 # private contributions, add a classic PAT with `read:user` + `repo` scopes as
 # a repository secret named STATS_TOKEN.
@@ -38,7 +38,10 @@ jobs:
 
       - run: pip install -r scripts/requirements.txt
 
-      - name: Build README
+      - name: Install headless Chromium (renders the cards to PNG)
+        run: python -m playwright install --with-deps chromium
+
+      - name: Build cards
         run: python scripts/build.py --fetch --user "${{ github.repository_owner }}"
         env:
           GITHUB_TOKEN: ${{ secrets.STATS_TOKEN || secrets.GITHUB_TOKEN }}
@@ -49,10 +52,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add README.md assets data
           if git diff --cached --quiet; then
-            echo "Profile already up to date."
+            echo "Cards already up to date."
             exit 0
           fi
-          git commit -m "chore: sync profile stats [skip ci]"
+          git commit -m "chore: sync matrix cards [skip ci]"
           # a push to the branch while this job ran would reject a plain push
           git pull --rebase --autostash
           git push

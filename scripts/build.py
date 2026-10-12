@@ -1,4 +1,4 @@
-"""Build README.md (all text) and the decorative rain banner assets/rain.gif.
+"""Build the image cards (assets/cards/*.png), the rain banner (assets/rain.gif) and README.md.
 
     python scripts/build.py            # rebuild from profile.toml + cached data/github.json
     GITHUB_TOKEN=... python scripts/build.py --fetch [--user Skor17]   # refresh GitHub stats first
@@ -17,10 +17,15 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
 
 import banner  # noqa: E402
+import cards  # noqa: E402
+import raster  # noqa: E402
 import readme  # noqa: E402
 import stats  # noqa: E402
 
+ASSETS = ROOT / "assets"
 CACHE = ROOT / "data" / "github.json"
+# cards use the narrow (stacked) layout, which stays readable on a phone; 3x pixels
+WIDTH, SCALE = cards.NARROW, 3
 
 
 def main() -> None:
@@ -49,10 +54,28 @@ def main() -> None:
     if data is None:
         print("no GitHub stats yet: the README shows a placeholder")
 
-    (ROOT / "README.md").write_text(readme.render(profile, data, args.user), encoding="utf-8")
-    print("built README.md")
-    banner.render(ROOT / "assets" / "rain.gif")
+    # render the README first: it validates profile.toml (line widths, ASCII)
+    text = readme.render(profile, data, args.user)
+
+    svgs = {name: build(profile, W=WIDTH) for name, build in cards.STATIC_CARDS.items()}
+    svgs["stats"] = stats.render_stats(data, W=WIDTH)
+    svgs["activity"] = stats.render_activity(data, W=WIDTH)
+    jobs = []
+    for name, svg in svgs.items():
+        src = ASSETS / "_svg" / f"{name}.svg"  # git-ignored intermediate
+        svg.save(src)
+        jobs.append((src, ASSETS / "cards" / f"{name}.png", SCALE))
+    raster.rasterize(jobs)
+    for _, png, _ in jobs:
+        print(f"built {png.relative_to(ROOT)}")
+    banner.render(ASSETS / "rain.gif")
     print("built assets/rain.gif")
+
+    missing = [c for c in readme.CARDS if not (ASSETS / "cards" / f"{c}.png").exists()]
+    if missing:
+        sys.exit(f"README references cards that were not built: {missing}")
+    (ROOT / "README.md").write_text(text, encoding="utf-8")
+    print("built README.md")
 
 
 if __name__ == "__main__":

@@ -1,9 +1,10 @@
-"""Render README.md as plain text: terminal transcripts in code blocks.
+"""Render README.md: the image cards, plus the same content as plain text.
 
-Everything that carries information is text that github.com draws itself, so the
-profile reads the same in every browser, theme, screen reader, the GitHub mobile
-apps, and on networks that block GitHub's image servers. The only images are
-decorative (alt="") and simply vanish if they can't load.
+The cards (assets/cards/*.png) carry the look. The TEXT MODE section repeats
+everything as terminal transcripts in code blocks, which github.com draws itself,
+so the profile stays readable for screen readers and on networks that block
+GitHub's image servers; the cards have alt="" so they vanish there instead of
+leaving broken links.
 """
 
 from __future__ import annotations
@@ -156,24 +157,29 @@ def motto(p: dict) -> list[str]:
 
 
 # ── page ─────────────────────────────────────────────────────────────────────
+CARDS = ["header", "boot", "whoami", "stats", "activity", "comms", "stack", "footer"]
+
+
 def render(p: dict, data: dict | None, login: str, today: dt.date | None = None) -> str:
     today = today or dt.date.today()
     raw = RAW.format(login=login)
+    img = lambda path, width: f'<img src="{raw}/{path}" width="{width}" alt="" />'  # noqa: E731
+    text = "\n\n".join(block(b) for b in (boot(p), whoami(p), arsenal(p), netstat(p, data, today), motto(p)))
     parts = [
         "<!--\n"
         "  GENERATED FILE: edit profile.toml (and scripts/), not this README.\n"
         "  The matrix-sync workflow rebuilds it and refreshes the stats every day.\n"
         "\n"
-        "  Everything readable is text inside code blocks, so it shows on every device,\n"
-        "  browser, theme and network. Images are decoration only (alt=\"\"): if a network\n"
-        "  blocks GitHub's image servers they vanish instead of leaving broken links.\n"
+        "  The cards are PNG images with alt=\"\": if a network blocks GitHub's image\n"
+        "  servers they vanish instead of leaving broken links. Everything they show is\n"
+        "  also in the TEXT MODE section, which github.com draws itself and screen\n"
+        "  readers read, so the profile is readable on any device or network.\n"
         "-->",
-        f'<p align="center"><img src="{raw}/assets/rain.gif" width="100%" alt="" /></p>',
-        block(boot(p)),
-        block(whoami(p)),
-        block(arsenal(p)),
-        block(netstat(p, data, today)),
-        block(motto(p)),
+        # one paragraph for all images: if they're blocked, it collapses to a single empty line
+        '<p align="center">\n' + "\n".join(
+            [img("assets/rain.gif", "100%")] + [img(f"assets/cards/{c}.png", 520) for c in CARDS]) + "\n</p>",
+        "<details>\n<summary><b><code>&gt;_ TEXT MODE</code></b> &nbsp;images not loading? "
+        "the whole profile as plain text</summary>\n\n" + text + "\n\n</details>",
         f'<p align="center"><img src="https://komarev.com/ghpvc/?username={login}&style=flat-square'
         f'&color=05ff62&label=VISITORS&labelColor=0d1117" alt="" /></p>',
     ]

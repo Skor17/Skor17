@@ -2,12 +2,26 @@
   GENERATED FILE: edit profile.toml (and scripts/), not this README.
   The matrix-sync workflow rebuilds it and refreshes the stats every day.
 
-  Everything readable is text inside code blocks, so it shows on every device,
-  browser, theme and network. Images are decoration only (alt=""): if a network
-  blocks GitHub's image servers they vanish instead of leaving broken links.
+  The cards are PNG images with alt="": if a network blocks GitHub's image
+  servers they vanish instead of leaving broken links. Everything they show is
+  also in the TEXT MODE section, which github.com draws itself and screen
+  readers read, so the profile is readable on any device or network.
 -->
 
-<p align="center"><img src="https://raw.githubusercontent.com/Skor17/Skor17/main/assets/rain.gif" width="100%" alt="" /></p>
+<p align="center">
+<img src="https://raw.githubusercontent.com/Skor17/Skor17/main/assets/rain.gif" width="100%" alt="" />
+<img src="https://raw.githubusercontent.com/Skor17/Skor17/main/assets/cards/header.png" width="520" alt="" />
+<img src="https://raw.githubusercontent.com/Skor17/Skor17/main/assets/cards/boot.png" width="520" alt="" />
+<img src="https://raw.githubusercontent.com/Skor17/Skor17/main/assets/cards/whoami.png" width="520" alt="" />
+<img src="https://raw.githubusercontent.com/Skor17/Skor17/main/assets/cards/stats.png" width="520" alt="" />
+<img src="https://raw.githubusercontent.com/Skor17/Skor17/main/assets/cards/activity.png" width="520" alt="" />
+<img src="https://raw.githubusercontent.com/Skor17/Skor17/main/assets/cards/comms.png" width="520" alt="" />
+<img src="https://raw.githubusercontent.com/Skor17/Skor17/main/assets/cards/stack.png" width="520" alt="" />
+<img src="https://raw.githubusercontent.com/Skor17/Skor17/main/assets/cards/footer.png" width="520" alt="" />
+</p>
+
+<details>
+<summary><b><code>&gt;_ TEXT MODE</code></b> &nbsp;images not loading? the whole profile as plain text</summary>
 
 ```text
    _____ __ ______  ____ ________
@@ -105,5 +119,7 @@ There is no spoon. Free your mind.
 skor17@zion:~$ logout
 [ connection closed ]
 ```
+
+</details>
 
 <p align="center"><img src="https://komarev.com/ghpvc/?username=Skor17&style=flat-square&color=05ff62&label=VISITORS&labelColor=0d1117" alt="" /></p>
